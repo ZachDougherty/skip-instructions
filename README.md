@@ -12,28 +12,28 @@ Here we detail the process of data processing, embedding, and model training.
 The recipe data comes in `json` format:
 ```json
 [
-	{
-		"ingredients" : [
-			{
-				"text": "ingredient 1"
-			},
-			{
-				"text": "ingredient 2"
-			},
-		],
-		"url": "source of recipe",
-		"partition": "one of train, test, val",
-		"title": "title of recipe",
-		"id": "unique identifier",
-		"instructions": [
-			{
-				"text": "step 1"
-			},
-			{
-				"text": "step 2"
-			},
-		]
-	}
+ {
+  "ingredients" : [
+   {
+    "text": "ingredient 1"
+   },
+   {
+	"text": "ingredient 2"
+   },
+  ],
+  "url": "source of recipe",
+  "partition": "one of train, test, val",
+  "title": "title of recipe",
+  "id": "unique identifier",
+  "instructions": [
+   {
+    "text": "step 1"
+   },
+   {
+    "text": "step 2"
+   },
+  ]
+ }
 ]
 ```
 The [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository luckily provides the tools for tokenizing the recipe and ingredient text.
@@ -42,9 +42,9 @@ After tokenization, we will finetune pretrained Word2Vec embeddings on our recip
 
 Our PyTorch Dataset will consist of input - output pairs where
 
-input = $s_{i}$, an instruction vector where each element represents the index of the associated word.
+input = an instruction vector where each element represents the index of the associated word.
 
-output = $s_{i+1}$, the instruction vector for the next instruction in the recipe.
+output = the instruction vector for the next instruction in the recipe.
 
 We also prepend each instruction vector with the start of sentence, \<sos>, token and append it with the end of sentence token, \<eos>.
 
