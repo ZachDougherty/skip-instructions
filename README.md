@@ -12,28 +12,28 @@ Here we detail the process of data processing, embedding, and model training.
 The recipe data comes in `json` format:
 ```json
 [
-   {
-      "ingredients": [
-         {
-            "text": "ingredient 1"
-		 },
-		 {
-			"text": "ingredient 2"
- 		 },
-	  ],
-      "url": "source of recipe",
-   	  "partition": "one of train, test, val",
-	  "title": "title of recipe",
-	  "id": "unique identifier",
-	  "instructions": [
-	     {
- 	        "text": "step 1"
-		 },
-		 {
-			"text": "step 2"
-		 },
-	  ]
-   },
+	{
+		"ingredients": [
+			{
+				"text": "ingredient 1"
+			},
+			{
+				"text": "ingredient 2"
+			},
+		],
+		"url": "source of recipe",
+		"partition": "one of train, test, val",
+		"title": "title of recipe",
+		"id": "unique identifier",
+		"instructions": [
+			{
+				"text": "step 1"
+			},
+			{
+				"text": "step 2"
+			},
+		]
+	}
 ]
 ```
 The [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository luckily provides the tools for tokenizing the recipe and ingredient text.
