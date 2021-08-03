@@ -49,3 +49,6 @@ output = the instruction vector for the next instruction in the recipe.
 We also prepend each instruction vector with the start of sentence, \<sos>, token and append it with the end of sentence token, \<eos>.
 
 ## Model
+Our skip-instructions model consists of a 2 stage LSTM. Since recipe instruction lengths are fairly long, a single LSTM will run into the vanishing gradient problem. The proposed architecture is to first train a skip-thought LSTM on individual instructions. A skip-thought model has an encoder-decoder architecture, and we will use an LSTM for both. The idea is to encode the sequence of word embeddings for a given instruction and decode the next instruction. Essentially, the model is learning the task of predicting the next instruction from the previous one.
+
+After training, the hidden state for any given sentence becomes an embedding for that instruction. We can then use these embeddings as the inputs to a standard LSTM to produce recipe level embeddings. In the end, we will be able to use these embeddings for the larger joint-embedding model or for other machine learning tasks.
