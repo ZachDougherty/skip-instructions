@@ -14,7 +14,6 @@ class Encoder(nn.Module):
         """
         Args:
             - hidden_size: desired hidden size dimension
-            - seq_length: fixed length of input vectors (max instruction length)
             - vocab_size: number of unique words in all instructions
             - embeddings: if not None, these are pretrained word embeddings
                           for this dataset
@@ -44,7 +43,6 @@ class Decoder(nn.Module):
         """
         Args:
             - hidden_size: desired hidden size dimension
-            - seq_length: fixed length of input vectors (max instruction length)
             - vocab_size: number of unique words in all instructions
             - embeddings: if not None, these are pretrained word embeddings
                           for this dataset
@@ -83,9 +81,9 @@ class SkipThought(nn.Module):
     states are not useful for calculating loss, but each output hidden
     state is used as the initial hidden state for the following step.
     """
-    def __init__(self, hidden_size, seq_length, vocab_size=None, embeddings=None, embedding_size=50, teacher_forcing=1):
+    def __init__(self, hidden_size, vocab_size, embeddings=None, embedding_size=50, teacher_forcing=1):
         """
-        Same Arguments as EmbeddingLSTM except for:
+        Same Arguments as Encoder/ Decoder except for:
             - teacher_forcing: probability of enforcing teacher forcing.
                                Teacher forcing is used for the decoder
                                and is the probability that we give the 
@@ -93,8 +91,8 @@ class SkipThought(nn.Module):
                                the predicted next word
         """    
         super().__init__()
-        self.encoder = EmbeddingLSTM(hidden_size, vocab_size, embeddings, embedding_size)
-        self.decoder = EmbeddingLSTM(hidden_size, vocab_size, embeddings, embedding_size)
+        self.encoder = Encoder(hidden_size, vocab_size, embeddings, embedding_size)
+        self.decoder = Decoder(hidden_size, vocab_size, embeddings, embedding_size)
         self.teacher_forcing = teacher_forcing
         self.seq_length = seq_length
         
@@ -108,7 +106,7 @@ class SkipThought(nn.Module):
         full_output = torch.clone(decoder_input)
         
         for idx in range(self.seq_length):
-            if teacher_forcing > np.random.random():
+            if self.teacher_forcing > np.random.random():
                 next_words = target[:, idx, :].unsqueeze(1)  # LSTM needs sequence length dimension, even for 1 element
             else:
                 next_words = torch.argmin(decoder_output, dim=2)
@@ -118,4 +116,3 @@ class SkipThought(nn.Module):
             
         return full_output
 
-        
