@@ -21,9 +21,8 @@ class Encoder(nn.Module):
                               to train
         """
         super().__init__()
-        if embeddings:  # if using word2vec
-            weights = embeddings.get_normed_vectors()
-            self.emb = nn.Embedding.from_pretrained(torch.tensor(weights), freeze=True)
+        if embeddings:  # if using gLoVe
+            self.emb = nn.Embedding.from_pretrained(torch.tensor(embeddings), freeze=True)
         else:
             self.emb = nn.Embedding(vocab_size, embedding_size)
             
@@ -50,9 +49,8 @@ class Decoder(nn.Module):
                               to train
         """
         super().__init__()
-        if embeddings:  # if using word2vec
-            weights = embeddings.get_normed_vectors()
-            self.emb = nn.Embedding.from_pretrained(torch.tensor(weights), freeze=True)
+        if embeddings:  # if using gLoVe
+            self.emb = nn.Embedding.from_pretrained(torch.tensor(embeddings), freeze=True)
         else:
             self.emb = nn.Embedding(vocab_size, embedding_size)
             
