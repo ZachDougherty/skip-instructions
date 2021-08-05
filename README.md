@@ -21,18 +21,18 @@ The recipe data comes in `json` format:
         "text": "ingredient 2"
       },
     ],
-	"url": "source of recipe",
-	"partition": "one of train, test, val",
-	"title": "title of recipe",
-	"id": "unique identifier",
-	"instructions": [
-  	  {
-		"text": "step 1"
-	  },
- 	  {
-		"text": "step 2"
-	  },
-	]
+    "url": "source of recipe",
+    "partition": "one of train, test, val",
+    "title": "title of recipe",
+    "id": "unique identifier",
+    "instructions": [
+      {
+        "text": "step 1"
+      },
+      {
+        "text": "step 2"
+      },
+    ]
   }
 ]
 ```
