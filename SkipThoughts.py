@@ -20,7 +20,7 @@ class Encoder(nn.Module):
             - embedding_size: if embeddings is None, this is size of embeddings
                               to train
         """
-        super(self, Encoder).__init__()
+        super().__init__()
         if embeddings:  # if using word2vec
             weights = embeddings.get_normed_vectors()
             self.emb = nn.Embedding.from_pretrained(torch.tensor(weights), freeze=True)
@@ -49,23 +49,24 @@ class Decoder(nn.Module):
             - embedding_size: if embeddings is None, this is size of embeddings
                               to train
         """
-        super(self, Decoder).__init__()
+        super().__init__()
         if embeddings:  # if using word2vec
             weights = embeddings.get_normed_vectors()
             self.emb = nn.Embedding.from_pretrained(torch.tensor(weights), freeze=True)
         else:
             self.emb = nn.Embedding(vocab_size, embedding_size)
             
-        self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True, proj_size=vocab_size)
+        self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True)
+        self.linear = nn.Linear(hidden_size, vocab_size)
         self.softmax = nn.LogSoftmax(dim=2)  # the 2nd dimension contains vector of possible word predictions
         
     def forward(self, output, hidden):
         "Expects a batch where each element is a single element. Produces the output and hidden state after a single pass"
         x = self.emb(output)
         output, (hidden, cell) = self.lstm(output, hidden)  # proj size means we can project output to number of classes (words)
+        output = self.linear(output)
         output = self.softmax(output)  # apply softmax so we can calculate loss properly
         return output, hidden
-    
     
 class SkipThought(nn.Module):
     """
@@ -91,10 +92,12 @@ class SkipThought(nn.Module):
                                the predicted next word
         """    
         super().__init__()
+        self.pretrained = False
+        if embeddings:
+            self.pretrained = True
         self.encoder = Encoder(hidden_size, vocab_size, embeddings, embedding_size)
         self.decoder = Decoder(hidden_size, vocab_size, embeddings, embedding_size)
         self.teacher_forcing = teacher_forcing
-        self.seq_length = seq_length
         
     def forward(self, x, target):
         output, final_hidden = self.encoder(x)
@@ -105,7 +108,7 @@ class SkipThought(nn.Module):
         decoder_output, decoder_hidden = self.decoder(decoder_input, decoder_hidden)
         full_output = torch.clone(decoder_input)
         
-        for idx in range(self.seq_length):
+        for idx in range(target.shape[1]):
             if self.teacher_forcing > np.random.random():
                 next_words = target[:, idx, :].unsqueeze(1)  # LSTM needs sequence length dimension, even for 1 element
             else:
