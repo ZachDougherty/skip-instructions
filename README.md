@@ -15,12 +15,12 @@ The recipe data comes in `json` format:
   {
     "ingredients": [
       {
-	    "text": "ingredient 1"
-	  },
-	  {
-		"text": "ingredient 2"
-  	  },
-	],
+        "text": "ingredient 1"
+      },
+      {
+        "text": "ingredient 2"
+      },
+    ],
 	"url": "source of recipe",
 	"partition": "one of train, test, val",
 	"title": "title of recipe",
