@@ -1,3 +1,5 @@
+import ipdb
+
 import json
 import numpy as np
 import sys
@@ -31,7 +33,8 @@ def tokenize():
         allinstrs = ''
         for instr in instrs:
             instr = instr['text']
-            allinstrs += instr + '\n'
+            allinstrs += instr + '\t'
+        ipdb.set_trace()
 
         # find corresponding set of detected ingredients
         det_ingrs = dets[idx2ind[entry['id']]]['ingredients']
@@ -47,8 +50,11 @@ def tokenize():
             det_ingr_undrs = det_ingr['text'].replace(' ', '_')
             ingrs.append(det_ingr_undrs)
             allinstrs = allinstrs.replace(det_ingr['text'], det_ingr_undrs)
-        text += allinstrs
+        text += allinstrs + '\n'
 
     text = tok(text)
 
     return text
+
+t = tokenize()
+ipdb.set_trace()
