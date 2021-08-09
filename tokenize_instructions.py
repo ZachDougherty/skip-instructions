@@ -4,7 +4,7 @@ import sys
 
 def tok(text, ts=False):
     """
-    Usage: tokenized_text = tok(text, token_list)
+    parameters: text, token_list
     If token list is not provided default one will be used instead.
     """
     if not ts:

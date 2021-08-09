@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 def build_dictionary(text_file_path):
     """
-    Build a dictionary
-    text_file_path: path for the tokenized text
+    Build a vocab to index dictionary
+    parameters: path for the tokenized text
     """
     with open(text_file_path, "rt") as f:
         sentences = f.readlines()  # instructions
@@ -24,6 +24,6 @@ def build_dictionary(text_file_path):
     word_dict['__unknown__'] = 0
     word_dict['<eos>'] = 1
     for idx, word in enumerate(sorted_words):
-        word_dict[word] = idx + 2  # 0: <__unknown__>, 1: <eos>
+        word_dict[word] = idx + 2  # 0: __unknown__, 1: <eos>
 
     return word_dict, text

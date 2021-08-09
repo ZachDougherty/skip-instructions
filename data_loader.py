@@ -8,7 +8,6 @@ np.random.seed(0)
 
 class InstructionDataset(Dataset):
     def __init__(self, sentences, word_dict, max_len):
-        self.eos = 1  # end of sentence
         self.maxlen = max_len
         self.sentences = sentences
         self.word_dict = word_dict
@@ -18,7 +17,7 @@ class InstructionDataset(Dataset):
 
     def sentence_encode(self, sentence):
         enc = [self.word_dict.get(w, self.word_dict["__unknown__"]) for w in sentence.split()][: self.maxlen - 1]
-        enc += [self.eos] * (self.maxlen - len(enc))  # add end of sentence
+        enc += [self.word_dict["<eos>"]] * (self.maxlen - len(enc))  # add end of sentence
         enc = Variable(torch.from_numpy(np.array(enc)))
         return enc
 
