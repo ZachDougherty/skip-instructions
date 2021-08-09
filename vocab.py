@@ -8,7 +8,7 @@ def build_dictionary(text_file_path):
     with open(text_file_path, "rt") as f:
         sentences = f.readlines()  # instructions
 
-    text = [s.replace("\n", "") for s in sentences]
+    text = [s.replace("\n", "").replace("\t","") for s in sentences]
 
     wordcount = {}
     for cc in text:
