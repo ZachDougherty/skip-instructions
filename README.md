@@ -52,3 +52,12 @@ We also prepend each instruction vector with the start of sentence, \<sos>, toke
 Our skip-instructions model consists of a 2 stage LSTM. Since recipe instruction lengths are fairly long, a single LSTM will run into the vanishing gradient problem. The proposed architecture is to first train a skip-thought LSTM on individual instructions. A skip-thought model has an encoder-decoder architecture, and we will use an LSTM for both. The idea is to encode the sequence of word embeddings for a given instruction and decode the next instruction. Essentially, the model is learning the task of predicting the next instruction from the previous one.
 
 After training, the hidden state for any given sentence becomes an embedding for that instruction. We can then use these embeddings as the inputs to a standard LSTM to produce recipe level embeddings. In the end, we will be able to use these embeddings for the larger joint-embedding model or for other machine learning tasks.
+
+## Training
+In order to train the model, we first need to download the ingredient and recipe data from MIT group. You can follow the instructions in their [article](http://pic2recipe.csail.mit.edu/) and download the `det_ingrs.json` and `layer1.json` files, placing them on the `data` directory.
+
+Once the data is downloaded, run `python tokenize_instructions.py` to generate tokenized recipe instructions. This will create 3 files, `tokenized_train_text.txt`,`tokenized_test_text.txt` and `tokenized_val_text.txt` each corresponding to train, test and validation portions of the recipe data.
+
+Once the data is created, we train the model with `python train.py`. We have included many command line options for customizing your training approach. These can be explored with `python parser.py -h`. The most important argument is `-c` or `--save-checkpoints`. Given this flag, the script will save a checkpoint of the model after each epoch in the `--outpath` directory (default is `models/`).
+
+## Results
