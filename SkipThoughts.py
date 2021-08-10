@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch
+import numpy as np
 
 # need to use negative log-likelihood, NLLLoss() bc we use the LogSoftmax() function
 # we would need to use CrossEntropyLoss() if we used regular Softmax()
@@ -21,10 +21,10 @@ class Encoder(nn.Module):
                               to train
         """
         super().__init__()
-        if embeddings:  # if using gLoVe
+        if embeddings is not None:  # if using gLoVe
             self.emb = nn.Embedding.from_pretrained(torch.tensor(embeddings), freeze=True)
         else:
-            self.emb = nn.Embedding(vocab_size, embedding_size)
+            self.emb = nn.Embedding(vocab_size, embedding_size, padding_idx=0)
             
         self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True)        
         
@@ -49,22 +49,22 @@ class Decoder(nn.Module):
                               to train
         """
         super().__init__()
-        if embeddings:  # if using gLoVe
+        if embeddings is not None:  # if using gLoVe
             self.emb = nn.Embedding.from_pretrained(torch.tensor(embeddings), freeze=True)
         else:
-            self.emb = nn.Embedding(vocab_size, embedding_size)
+            self.emb = nn.Embedding(vocab_size, embedding_size, padding_idx=0)
             
         self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.softmax = nn.LogSoftmax(dim=2)  # the 2nd dimension contains vector of possible word predictions
         
-    def forward(self, output, hidden):
+    def forward(self, output, hidden, cell):
         "Expects a batch where each element is a single element. Produces the output and hidden state after a single pass"
         x = self.emb(output)
-        output, (hidden, cell) = self.lstm(output, hidden)  # proj size means we can project output to number of classes (words)
+        output, (hidden, cell) = self.lstm(x, (hidden, cell))
         output = self.linear(output)
         output = self.softmax(output)  # apply softmax so we can calculate loss properly
-        return output, hidden
+        return output, (hidden, cell)
     
 class SkipThought(nn.Module):
     """
@@ -90,9 +90,6 @@ class SkipThought(nn.Module):
                                the predicted next word
         """    
         super().__init__()
-        self.pretrained = False
-        if embeddings:
-            self.pretrained = True
         self.encoder = Encoder(hidden_size, vocab_size, embeddings, embedding_size)
         self.decoder = Decoder(hidden_size, vocab_size, embeddings, embedding_size)
         self.teacher_forcing = teacher_forcing
@@ -101,19 +98,24 @@ class SkipThought(nn.Module):
         output, final_hidden = self.encoder(x)
         batch_size = x.shape[0]
                 
-        decoder_input = torch.zeros(batch_size, 1)  # intialize input as 0, index of <sos>
-        
-        decoder_output, decoder_hidden = self.decoder(decoder_input, decoder_hidden)
-        full_output = torch.clone(decoder_input)
+        decoder_input = torch.zeros(batch_size, 1).long()  # intialize input as 0, index of <eos>
+        decoder_cell = torch.zeros(1, batch_size, final_hidden.shape[2])
+        decoder_hidden = final_hidden
+
+
+        decoder_output, (decoder_hidden, decoder_cell) = \
+            self.decoder(decoder_input, decoder_hidden, decoder_cell)
+        full_output = torch.clone(decoder_output)
         
         for idx in range(target.shape[1]):
             if self.teacher_forcing > np.random.random():
-                next_words = target[:, idx, :].unsqueeze(1)  # LSTM needs sequence length dimension, even for 1 element
+                next_words = target[:, idx].unsqueeze(1).long()  # LSTM needs sequence length dimension, even for 1 element
             else:
-                next_words = torch.argmin(decoder_output, dim=2)
+                next_words = torch.argmin(decoder_output, dim=2).long()
             
-            decoder_output, decoder_hidden = self.decoder(next_words, decoder_hidden)
+            decoder_output, (decoder_hidden, decoder_cell) = \
+                self.decoder(next_words, decoder_hidden, decoder_cell)
+
             full_output = torch.cat([full_output, decoder_output], dim=1)  # save LogSoftmax calculations for loss
             
         return full_output
-

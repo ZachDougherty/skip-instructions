@@ -11,13 +11,15 @@ def get_parser():
 		help="Learning rate for the optimizer.")
 	parser.add_argument("-o", "--out-path", default='models/', type=str,
 		help="Path to directory where models will be stored.")
-	parser.add_argument("--pretrained" default=True, type=bool,
+	parser.add_argument("--pretrained", action="store_true",
 		help="Boolean, whether or not to used pretrained word embeddings.")
-	parser.add_argument("-c","--checkpoints", default=True, type=bool,
+	parser.add_argument("-c","--save-checkpoints", action='store_true',
 		help="Boolean, whether or not to save model checkpoints for each epoch.")
-	parser.add_argument("-h","--hidden-size", default=150, type=int,
+	parser.add_argument("--hidden-size", default=150, type=int,
 		help="Integer, size of hidden state in LSTMs")
 	parser.add_argument("-t","--teacher-forcing", default=1.0, type=float,
 		help="The probability of teacher forcing for each element of decoded sequence.")
+	parser.add_argument("--train-shuffle", action="store_true",
+		help="Whether or not to shuffle the data in DataLoader for training.")
 
 	return parser
