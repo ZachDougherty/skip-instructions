@@ -11,8 +11,6 @@ import gensim.downloader
 parser = get_parser()
 opts = parser.parse_args()
 
-import ipdb
-
 def train(opts):
 	"Train the model"
 	print("Creating vocabulary...", end='')
@@ -31,7 +29,9 @@ def train(opts):
 	print("Done")
 
 	print("Constructing model...", end='')
+	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 	model = SkipThought(opts.hidden_size, len(word2idx), embeddings, teacher_forcing=opts.teacher_forcing)
+	model.to(device)
 	optimizer = optim.Adam(model.parameters(), lr=opts.learning_rate)
 	loss = nn.NLLLoss(reduction='sum')
 	print("Done")
@@ -42,6 +42,9 @@ def train(opts):
 
 		total_loss = 0
 		for x, target in train_dl:
+			x.to(device)
+			target.to(device)
+
 			model.train()
 
 			output = model(x, target)
