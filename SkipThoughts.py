@@ -98,8 +98,13 @@ class SkipThought(nn.Module):
         output, final_hidden = self.encoder(x)
         batch_size = x.shape[0]
                 
-        decoder_input = torch.zeros(batch_size, 1).long().cuda()  # intialize input as 0, index of <eos>
-        decoder_cell = torch.zeros(1, batch_size, final_hidden.shape[2]).cuda()
+        if torch.cuda.is_available():
+            decoder_input = torch.zeros(batch_size, 1).long().cuda()  # intialize input as 0, index of <eos>
+            decoder_cell = torch.zeros(1, batch_size, final_hidden.shape[2]).cuda()
+        else:
+            decoder_input = torch.zeros(batch_size, 1).long()  # intialize input as 0, index of <eos>
+            decoder_cell = torch.zeros(1, batch_size, final_hidden.shape[2])
+
         decoder_hidden = final_hidden
 
 

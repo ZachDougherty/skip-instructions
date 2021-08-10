@@ -30,7 +30,7 @@ def train(opts):
 
 	print("Constructing model...", end='')
 	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-	print(device)
+
 	model = SkipThought(opts.hidden_size, len(word2idx), embeddings, teacher_forcing=opts.teacher_forcing)
 	model.to(device)
 	model.encoder.to(device)
