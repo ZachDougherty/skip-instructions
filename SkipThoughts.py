@@ -80,7 +80,7 @@ class SkipThought(nn.Module):
     states are not useful for calculating loss, but each output hidden
     state is used as the initial hidden state for the following step.
     """
-    def __init__(self, hidden_size, vocab_size, embeddings=None, embedding_size=50, teacher_forcing=1):
+    def __init__(self, hidden_size, vocab_size, embeddings=None, embedding_size=50, teacher_forcing=1, device="cuda"):
         """
         Same Arguments as Encoder/ Decoder except for:
             - teacher_forcing: probability of enforcing teacher forcing.

@@ -29,9 +29,12 @@ def train(opts):
 	print("Done")
 
 	print("Constructing model...", end='')
-	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+	print(device)
 	model = SkipThought(opts.hidden_size, len(word2idx), embeddings, teacher_forcing=opts.teacher_forcing)
 	model.to(device)
+	model.encoder.to(device)
+	model.decoder.to(device)
 	optimizer = optim.Adam(model.parameters(), lr=opts.learning_rate)
 	loss = nn.NLLLoss(reduction='sum')
 	print("Done")
@@ -42,8 +45,8 @@ def train(opts):
 
 		total_loss = 0
 		for x, target in train_dl:
-			x.to(device)
-			target.to(device)
+			x = x.to(device)
+			target = target.to(device)
 
 			model.train()
 
