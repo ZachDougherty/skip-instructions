@@ -2,7 +2,7 @@
 ### By: Zachary Dougherty and Wonseok Choi
 
 ## Goal
-The goal of this project is to develop a PyTorch implementation of the _skip_instructions_ model from the [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository. This repository and its [associated paper](http://pic2recipe.csail.mit.edu/) aim to develop a joint-embedding model for recipe-image pairs. The final result is a model which can produce a sequence of recipe instructions from an image of food. 
+The goal of this project is to develop a PyTorch implementation of the _skip-instructions_ model from the [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository. This repository and its [associated paper](http://pic2recipe.csail.mit.edu/) aim to develop a joint-embedding model for recipe-image pairs. The final result is a model which can produce a sequence of recipe instructions from an image of food. 
 
 One essential part of their architecture is a _skip-instructions_ model, based on the _skip-thought_ architecture proposed [here](https://papers.nips.cc/paper/2015/file/f442d33fa06832082290ad8544a8da27-Paper.pdf). In this implementation, however, we will be using LSTM's for both the Encoder and Decoder as opposed to GRU's.
 
@@ -36,11 +36,11 @@ The recipe data comes in `json` format:
   }
 ]
 ```
-The [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository luckily provides the tools for tokenizing the recipe and ingredient text.
+The [im2recipe-PyTorch](https://github.com/torralba-lab/im2recipe-Pytorch) repository luckily provides the tools for tokenizing the recipe and ingredient text. We have modified some and created our own vocabulary from the tokenized data in the case of custom embeddings.
 
-After tokenization, we will finetune pretrained Word2Vec embeddings on our recipe dataset.
+After tokenization, we provide the option of using pretrained 100d gLoVe vectors or a custom embedding. The default custom embedding dimension is `50`.
 
-Our PyTorch Dataset will consist of input - output pairs where
+Our PyTorch Dataset will consist of input - output pairs where:
 
 input = an skip-instruction vector where each element represents the index of the associated word.
 
@@ -49,9 +49,9 @@ output = the skip-instruction vector for the next instruction in the recipe.
 We use a vector of \<eos> or end of sentence tokens for the first input to the decoder.
 
 ## Model
-Our skip-instructions model consists of a 2 stage LSTM. Since recipe instruction lengths are fairly long, a single LSTM will run into the vanishing gradient problem. The proposed architecture is to first train a skip-thought LSTM on individual instructions. A skip-thought model has an encoder-decoder architecture, and we will use an LSTM for both. The idea is to encode the sequence of word embeddings for a given instruction and decode the next instruction. Essentially, the model is learning the task of predicting the next instruction from the previous one.
+The recipe embedding model consists of a 2 stage LSTM. Since recipe instruction lengths are fairly long, a single LSTM will run into the vanishing gradient problem. The proposed architecture is to first train a skip-thought LSTM on individual instructions. A skip-thought model has an encoder-decoder architecture and we will use an LSTM for both. The idea is to encode the sequence of word embeddings for a given instruction and decode the next instruction. Essentially, the model is learning the task of predicting the next instruction from the previous one.
 
-After training, the hidden state for any given sentence becomes an embedding for that instruction. We can then use these embeddings as the inputs to a standard LSTM to produce recipe level embeddings. In the end, we will be able to use these embeddings for the larger joint-embedding model or for other machine learning tasks.
+After training, the final hidden state of the encoder for any given sentence becomes an embedding for that instruction. We can then use these embeddings as the inputs to a standard LSTM to produce recipe level embeddings.
 
 ## Training
 In order to train the model, we first need to download the ingredient and recipe data from the MIT group. You can follow the instructions in their [article](http://pic2recipe.csail.mit.edu/) and download the `det_ingrs.json` and `layer1.json` files, placing them in the `data` directory.
